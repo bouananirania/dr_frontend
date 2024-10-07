@@ -5,9 +5,9 @@ import 'package:http/http.dart' as http;
 import '../models/user.dart';
 
 class UserService {
-  final String apiUrl = 'http://localhost:3000/user';
+  final String apiUrl = 'http://127.0.0.1:3000/user';
 
-  Future<User> inscrire(
+  Future<String> inscrire(
       String userName, String password, String confirmPassword) async {
     final response = await http.post(
       Uri.parse('$apiUrl/inscrire'),
@@ -20,9 +20,9 @@ class UserService {
     );
 
     if (response.statusCode == 201) {
-      return User.fromJson(jsonDecode(response.body));
+      return 'succes';
     } else {
-      throw Exception('Erreur lors de l\'inscription');
+      return 'error';
     }
   }
 

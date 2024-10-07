@@ -8,14 +8,33 @@ class UserProvider extends ChangeNotifier {
   final UserService _userService = UserService();
 
   User? get user => _user;
+  String message = '';
 
-  Future<void> inscrire(
+  Future<String> inscrire(
       String userName, String password, String confirmPassword) async {
     try {
-      _user = await _userService.inscrire(userName, password, confirmPassword);
+      String result =
+          await _userService.inscrire(userName, password, confirmPassword);
+
+      // Mettre à jour l'état interne en fonction du résultat
+      if (result == 'success') {
+        message = 'Inscription réussie';
+        // Vous pouvez également mettre à jour `_user` si nécessaire
+        _user = User(
+            userName: userName, password: password); // Exemple de mise à jour
+      } else {
+        message = 'Échec de l\'inscription';
+      }
+
+      // Notifier les écouteurs
       notifyListeners();
+
+      // Retourner le résultat (success ou error)
+      return result;
     } catch (e) {
-      // Gérez les erreurs ici
+      message = 'Erreur: $e';
+      notifyListeners();
+      return 'error';
     }
   }
 
@@ -24,7 +43,7 @@ class UserProvider extends ChangeNotifier {
       _user = await _userService.login(userName, password);
       notifyListeners();
     } catch (e) {
-      // Gérez les erreurs ici
+      print(e);
     }
   }
 
@@ -35,7 +54,7 @@ class UserProvider extends ChangeNotifier {
           userName, oldPassword, newPassword, confirmNewPassword);
       notifyListeners();
     } catch (e) {
-      // Gérez les erreurs ici
+      print(e);
     }
   }
 }

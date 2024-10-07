@@ -95,12 +95,10 @@ class PatientService {
     }
   }
 
-  // Obtenir les détails d'un patient
+  /// Obtenir les détails d'un patient
   Future<PatientDetails> getPatientData(String id) async {
-    final response = await http.post(
-      Uri.parse('$apiUrl/patientData'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'id': id}),
+    final response = await http.get(
+      Uri.parse('$apiUrl/patientData?id=$id'),
     );
 
     if (response.statusCode == 200) {
@@ -113,10 +111,8 @@ class PatientService {
 
   // Rechercher des patients
   Future<List<Patient>> searchPatients(String searchTerm) async {
-    final response = await http.post(
-      Uri.parse('$apiUrl/searchPatients'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'searchTerm': searchTerm}),
+    final response = await http.get(
+      Uri.parse('$apiUrl/searchPatients?searchTerm=$searchTerm'),
     );
 
     if (response.statusCode == 200) {
