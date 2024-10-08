@@ -3,16 +3,30 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../widgets/CustomBackground.dart';
 
-class ConsulterPatientPage extends StatelessWidget {
+class ConsulterPatientPage extends StatefulWidget {
   ConsulterPatientPage({super.key});
 
-  final List<String> types = [];
-  final List<String> pres = [];
-  final List<bool> isCheckedtype = [];
-  final List<bool> isCheckedpres = [];
+  @override
+  _ConsulterPatientPageState createState() => _ConsulterPatientPageState();
+}
+
+class _ConsulterPatientPageState extends State<ConsulterPatientPage> {
+  List<String> types = [];
+  List<String> pres = [];
+  List<bool> isCheckedtype = [];
+  List<bool> isCheckedpres = [];
   TextEditingController remarqueController = TextEditingController();
   TextEditingController presController = TextEditingController();
   TextEditingController typeController = TextEditingController();
+
+  @override
+  void dispose() {
+    // Libérer les contrôleurs lors de la destruction du widget
+    remarqueController.dispose();
+    typeController.dispose();
+    presController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +42,7 @@ class ConsulterPatientPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Titre en haut à gauche
                   const Text(
                     'Consulter Patient',
                     style: TextStyle(
@@ -37,6 +52,7 @@ class ConsulterPatientPage extends StatelessWidget {
                       decoration: TextDecoration.none,
                     ),
                   ),
+                  // Icone du genre et informations du patient
                   Positioned(
                     left: 100,
                     child: Padding(
@@ -99,9 +115,10 @@ class ConsulterPatientPage extends StatelessWidget {
                           'Type',
                           'Entrez le type',
                           typeController,
+                          types,
+                          isCheckedtype,
                         ),
                       ),
-                      const SizedBox(width: 20), // Espacement entre les champs
 
                       const SizedBox(width: 20), // Espacement entre les champs
 
@@ -111,11 +128,13 @@ class ConsulterPatientPage extends StatelessWidget {
                           'Prescription',
                           'Entrez la prescription',
                           presController,
+                          pres,
+                          isCheckedpres,
                         ),
                       ),
+
                       const SizedBox(width: 20), // Espacement entre les champs
 
-                      // Champ pour les remarques
                       Expanded(
                         child: _buildTitleWithInputField(
                           'Remarques',
@@ -124,6 +143,59 @@ class ConsulterPatientPage extends StatelessWidget {
                         ),
                       ),
                     ],
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // Affichage des types ajoutés
+                  Column(
+                    children: List.generate(types.length, (index) {
+                      return Row(
+                        children: [
+                          Checkbox(
+                            value: isCheckedtype[index],
+                            onChanged: (bool? value) {
+                              setState(() {
+                                isCheckedtype[index] = value!;
+                                if (!value) {
+                                  types.removeAt(index);
+                                  isCheckedtype.removeAt(index);
+                                }
+                              });
+                            },
+                          ),
+                          Expanded(
+                            child: Text(types[index]),
+                          ),
+                        ],
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Affichage des prescriptions ajoutées
+                  Column(
+                    children: List.generate(pres.length, (index) {
+                      return Row(
+                        children: [
+                          Checkbox(
+                            value: isCheckedpres[index],
+                            onChanged: (bool? value) {
+                              setState(() {
+                                isCheckedpres[index] = value!;
+                                if (!value) {
+                                  pres.removeAt(index);
+                                  isCheckedpres.removeAt(index);
+                                }
+                              });
+                            },
+                          ),
+                          Expanded(
+                            child: Text(pres[index]),
+                          ),
+                        ],
+                      );
+                    }),
                   ),
 
                   const SizedBox(height: 200),
@@ -173,7 +245,11 @@ class ConsulterPatientPage extends StatelessWidget {
   }
 
   Widget _buildTitleWithInputFieldWithButton(
-      String title, String hintText, TextEditingController contr) {
+      String title,
+      String hintText,
+      TextEditingController contr,
+      List<String> itemList,
+      List<bool> checkedList) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: Column(
@@ -208,14 +284,21 @@ class ConsulterPatientPage extends StatelessWidget {
                     maxLines: null,
                   ),
                 ),
-                const SizedBox(
-                    width: 5), // Espacement entre le champ et le bouton
+                const SizedBox(width: 5),
                 ElevatedButton(
                   onPressed: () {
-                    // Ajouter l'élément à la liste sans effacer le champ de saisie
+                    // Ajouter le type ou la prescription à la liste sans effacer le champ de saisie
                     if (contr.text.isNotEmpty) {
-                      // Ajoutez ici votre logique pour gérer les types ou prescriptions
-                      contr.clear(); // Effacer le champ après l'ajout
+                      setState(() {
+                        if (title == 'Type') {
+                          itemList.add(contr.text);
+                          checkedList.add(true); // Initialisation à true
+                        } else if (title == 'Prescription') {
+                          itemList.add(contr.text);
+                          checkedList.add(true); // Initialisation à true
+                        }
+                        contr.clear(); // Effacer le champ après l'ajout
+                      });
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -234,42 +317,43 @@ class ConsulterPatientPage extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildTitleWithInputField(
-      String title, String hintText, TextEditingController controller) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              color: Color(0xFF00738C),
-              fontWeight: FontWeight.bold,
-              decoration: TextDecoration.none,
-            ),
+// Méthode helper pour créer un champ avec titre
+Widget _buildTitleWithInputField(
+    String title, String hintText, TextEditingController controller) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 15),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 18,
+            color: Color(0xFF00738C),
+            fontWeight: FontWeight.bold,
+            decoration: TextDecoration.none,
           ),
-          const SizedBox(height: 5),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 5),
-            decoration: BoxDecoration(
-              color: Colors.lightBlueAccent.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                hintText: hintText,
-                border: InputBorder.none,
-              ),
-              minLines: 1,
-              maxLines: null,
-            ),
+        ),
+        const SizedBox(height: 05),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 05),
+          decoration: BoxDecoration(
+            color: Colors.lightBlueAccent.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(10),
           ),
-        ],
-      ),
-    );
-  }
+          child: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: hintText,
+              border: InputBorder.none,
+            ),
+            minLines: 1,
+            maxLines: null, // Permet au TextField de grandir verticalement
+          ),
+        ),
+      ],
+    ),
+  );
 }
