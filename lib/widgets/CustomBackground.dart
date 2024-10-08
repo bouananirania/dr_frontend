@@ -5,7 +5,7 @@ class CustomBackground extends StatefulWidget {
   final Widget child;
   final String selectedMenu; // Menu sélectionné
   final String circleIconPath; // Image du demi-cercle
-  final String? pageTitle; // Titre de la page
+  final String pageTitle; // Titre de la page
   const CustomBackground({
     super.key,
     required this.child,

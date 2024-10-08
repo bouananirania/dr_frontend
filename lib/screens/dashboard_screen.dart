@@ -7,6 +7,7 @@ import '../providers/rendezvous.dart'; // Assurez-vous d'importer votre provider
 import '../widgets/customBackground.dart';
 import './ajout_patient.dart';
 import './liste_patient.dart';
+import './rendezvous.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -66,7 +67,7 @@ class DashboardPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const Page1(),
+                          builder: (context) => const RendezVous(),
                         ),
                       );
                     },
